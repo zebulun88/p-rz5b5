@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Private</title><meta name="robots" content="noindex, nofollow, noarchive"><meta name="referrer" content="no-referrer">
+<meta name="theme-color" content="#44403c"><link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="data:,">
+<style>html,body{margin:0;height:100%;background:#f5f5f4;color:#292524;font:16px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+#g{min-height:100%;display:flex;align-items:center;justify-content:center;padding:20px;box-sizing:border-box}#g[hidden]{display:none}
+.b{width:100%;max-width:320px;text-align:center}.l{font-size:40px}h1{font-size:20px;margin:10px 0 4px}p{margin:0 0 16px;color:#78716c}
+input{width:100%;box-sizing:border-box;font:inherit;font-size:22px;letter-spacing:.2em;text-align:center;text-transform:uppercase;padding:12px;border:1px solid #d6d3d1;border-radius:12px;background:#fff}
+button{width:100%;margin-top:10px;font:inherit;font-weight:600;padding:12px;border:0;border-radius:12px;background:#44403c;color:#fff;cursor:pointer}button:disabled{opacity:.6}
+#m{min-height:22px;margin-top:10px;color:#b91c1c;font-weight:600}</style></head>
+<body><div id="g" hidden><form class="b" id="f"><div class="l">🔒</div><h1>Private</h1><p>Enter your access code.</p>
+<input id="c" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="16" aria-label="Access code"><button id="s">Continue</button><div id="m" role="alert"></div></form></div>
+<script>
+(function () {
+  var SALT = 'UYYuGJ8j4qW9AQjLReItew==', ITER = 600000, KEY = 'p_key_v1';
+  var dec = function (s) { var b = atob(s), u = new Uint8Array(b.length); for (var i = 0; i < b.length; i++) u[i] = b.charCodeAt(i); return u; };
+  var enc = function (u) { var s = ''; new Uint8Array(u).forEach(function (x) { s += String.fromCharCode(x); }); return btoa(s); };
+  window.addEventListener('beforeinstallprompt', function (e) { e.preventDefault(); window.__bip = e; });
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(function () {});
+  var blob = null;
+  function getBlob() { return blob || (blob = fetch('bundle.enc', {cache: 'no-cache'}).then(function (r) { if (!r.ok) throw new Error('net'); return r.arrayBuffer(); })); }
+  async function open(raw) {
+    var buf = new Uint8Array(await getBlob());
+    var k = await crypto.subtle.importKey('raw', raw, 'AES-GCM', false, ['decrypt']);
+    var pt = await crypto.subtle.decrypt({name: 'AES-GCM', iv: buf.slice(0, 12)}, k, buf.slice(12));
+    var txt = await new Response(new Blob([pt]).stream().pipeThrough(new DecompressionStream('gzip'))).text();
+    return JSON.parse(txt);
+  }
+  async function derive(code) {
+    var base = await crypto.subtle.importKey('raw', new TextEncoder().encode(code), 'PBKDF2', false, ['deriveBits']);
+    return new Uint8Array(await crypto.subtle.deriveBits({name: 'PBKDF2', salt: dec(SALT), iterations: ITER, hash: 'SHA-256'}, base, 256));
+  }
+  function start(b) {
+    document.title = b.title; document.querySelector('meta[name=theme-color]').content = b.theme;
+    var st = document.createElement('style'); st.textContent = b.css; document.head.appendChild(st);
+    var ic = document.querySelector('link[rel=icon]'); ic.href = 'icons/favicon.png';
+    var at = document.createElement('link'); at.rel = 'apple-touch-icon'; at.href = 'icons/apple-touch-icon.png'; document.head.appendChild(at);
+    document.body.innerHTML = b.body;
+    window.JSQR_SRC = URL.createObjectURL(new Blob([b.jsqr], {type: 'text/javascript'}));
+    if (window.caches) caches.open('p-private').then(function (c) { return c.put('manifest', new Response(b.manifest, {headers: {'Content-Type': 'application/manifest+json'}})); })
+      .then(function () { var m = document.querySelector('link[rel=manifest]'); m.href = 'manifest.webmanifest?v=' + Date.now(); }).catch(function () {});
+    (function next(i) { if (i >= b.scripts.length) return; var s = document.createElement('script'); s.src = URL.createObjectURL(new Blob([b.scripts[i]], {type: 'text/javascript'})); s.onload = function () { next(i + 1); }; document.body.appendChild(s); })(0);
+  }
+  function showGate(msg) { document.getElementById('g').hidden = false; document.getElementById('m').textContent = msg || ''; document.getElementById('c').focus(); }
+  document.getElementById('f').addEventListener('submit', async function (e) {
+    e.preventDefault(); var code = document.getElementById('c').value.replace(/\s+/g, '').toUpperCase(); if (!code) return;
+    var btn = document.getElementById('s'), m = document.getElementById('m'); btn.disabled = true; m.textContent = ''; btn.textContent = 'Checking…';
+    try { var raw = await derive(code); var b = await open(raw); try { localStorage.setItem(KEY, enc(raw)); } catch (x) {} start(b); }
+    catch (err) { btn.disabled = false; btn.textContent = 'Continue'; m.textContent = (err && err.message === 'net') ? 'Can\'t connect. Check your internet and try again.' : 'Incorrect code'; document.getElementById('c').select(); }
+  });
+  var saved = null; try { saved = localStorage.getItem(KEY); } catch (x) {}
+  if (saved) open(dec(saved)).then(start).catch(function (err) { if (!(err && err.message === 'net')) { try { localStorage.removeItem(KEY); } catch (x) {} } showGate(); });
+  else showGate();
+})();
+</script></body></html>
