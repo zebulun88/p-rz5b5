@@ -44,6 +44,7 @@ button{width:100%;margin-top:10px;font:inherit;font-weight:600;padding:12px;bord
     var at = document.createElement('link'); at.rel = 'apple-touch-icon'; at.href = 'icons/apple-touch-icon.png'; document.head.appendChild(at);
     document.body.innerHTML = b.body;
     window.JSQR_SRC = URL.createObjectURL(new Blob([b.jsqr], {type: 'text/javascript'}));
+    window.VENDOR_SRC = {'jsQR.min.js': window.JSQR_SRC, 'zxing.min.js': URL.createObjectURL(new Blob([b.zxing || ''], {type: 'text/javascript'}))};
     if (window.caches) caches.open('p-private').then(function (c) { return c.put('manifest', new Response(b.manifest, {headers: {'Content-Type': 'application/manifest+json'}})); })
       .then(function () { var m = document.querySelector('link[rel=manifest]'); m.href = 'manifest.webmanifest?v=' + Date.now(); }).catch(function () {});
     (function next(i) { if (i >= b.scripts.length) return; var s = document.createElement('script'); s.src = URL.createObjectURL(new Blob([b.scripts[i]], {type: 'text/javascript'})); s.onload = function () { next(i + 1); }; document.body.appendChild(s); })(0);
