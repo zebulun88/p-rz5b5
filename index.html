@@ -16,7 +16,14 @@ button{width:100%;margin-top:10px;font:inherit;font-weight:600;padding:12px;bord
   var dec = function (s) { var b = atob(s), u = new Uint8Array(b.length); for (var i = 0; i < b.length; i++) u[i] = b.charCodeAt(i); return u; };
   var enc = function (u) { var s = ''; new Uint8Array(u).forEach(function (x) { s += String.fromCharCode(x); }); return btoa(s); };
   window.addEventListener('beforeinstallprompt', function (e) { e.preventDefault(); window.__bip = e; });
-  if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(function () {});
+  if ('serviceWorker' in navigator) {
+    var t0 = Date.now(), hadCtl = !!navigator.serviceWorker.controller;
+    navigator.serviceWorker.register('sw.js').then(function (r) { r.update().catch(function () {}); }).catch(function () {});
+    navigator.serviceWorker.addEventListener('controllerchange', function () {
+      var busy = document.querySelector('#sheet-wrap:not([hidden])') || (document.activeElement && /INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName));
+      if (hadCtl && !busy && Date.now() - t0 < 20000 && !sessionStorage.getItem('p_upd')) { sessionStorage.setItem('p_upd', '1'); location.reload(); }
+    });
+  }
   var blob = null;
   function getBlob() { return blob || (blob = fetch('bundle.enc', {cache: 'no-cache'}).then(function (r) { if (!r.ok) throw new Error('net'); return r.arrayBuffer(); })); }
   async function open(raw) {
