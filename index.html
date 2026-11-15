@@ -2,12 +2,12 @@
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Private</title><meta name="robots" content="noindex, nofollow, noarchive"><meta name="referrer" content="no-referrer">
 <meta name="theme-color" content="#44403c"><link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="data:,">
-<style>html,body{margin:0;height:100%;background:#f5f5f4;color:#292524;font:16px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
-#g{min-height:100%;display:flex;align-items:center;justify-content:center;padding:20px;box-sizing:border-box}#g[hidden]{display:none}
-.b{width:100%;max-width:320px;text-align:center}.l{font-size:40px}h1{font-size:20px;margin:10px 0 4px}p{margin:0 0 16px;color:#78716c}
-input{width:100%;box-sizing:border-box;font:inherit;font-size:22px;letter-spacing:.2em;text-align:center;text-transform:uppercase;padding:12px;border:1px solid #d6d3d1;border-radius:12px;background:#fff}
-button{width:100%;margin-top:10px;font:inherit;font-weight:600;padding:12px;border:0;border-radius:12px;background:#44403c;color:#fff;cursor:pointer}button:disabled{opacity:.6}
-#m{min-height:22px;margin-top:10px;color:#b91c1c;font-weight:600}</style></head>
+<style id="gate-css">html,body{margin:0}
+#g{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;box-sizing:border-box;background:#f5f5f4;color:#292524;font:16px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}#g[hidden]{display:none}
+#g .b{width:100%;max-width:320px;text-align:center}#g .l{font-size:40px}#g h1{font-size:20px;margin:10px 0 4px}#g p{margin:0 0 16px;color:#78716c}
+#g input{width:100%;box-sizing:border-box;font:inherit;font-size:22px;letter-spacing:.2em;text-align:center;text-transform:uppercase;padding:12px;border:1px solid #d6d3d1;border-radius:12px;background:#fff}
+#g button{width:100%;margin-top:10px;font:inherit;font-weight:600;padding:12px;border:0;border-radius:12px;background:#44403c;color:#fff;cursor:pointer}#g button:disabled{opacity:.6}
+#g #m{min-height:22px;margin-top:10px;color:#b91c1c;font-weight:600}</style></head>
 <body><div id="g" hidden><form class="b" id="f"><div class="l">🔒</div><h1>Private</h1><p>Enter your access code.</p>
 <input id="c" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="16" aria-label="Access code"><button id="s">Continue</button><div id="m" role="alert"></div></form></div>
 <script>
@@ -42,6 +42,7 @@ button{width:100%;margin-top:10px;font:inherit;font-weight:600;padding:12px;bord
     var st = document.createElement('style'); st.textContent = b.css; document.head.appendChild(st);
     var ic = document.querySelector('link[rel=icon]'); ic.href = 'icons/favicon.png';
     var at = document.createElement('link'); at.rel = 'apple-touch-icon'; at.href = 'icons/apple-touch-icon.png'; document.head.appendChild(at);
+    var gcss = document.getElementById('gate-css'); if (gcss) gcss.remove();
     document.body.innerHTML = b.body;
     window.JSQR_SRC = URL.createObjectURL(new Blob([b.jsqr], {type: 'text/javascript'}));
     window.VENDOR_SRC = {'jsQR.min.js': window.JSQR_SRC, 'zxing.min.js': URL.createObjectURL(new Blob([b.zxing || ''], {type: 'text/javascript'}))};
